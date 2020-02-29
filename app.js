@@ -6,6 +6,7 @@ new Vue({
     playerHealth: 100,
     monsterHealth: 100,
     gameIsRunning: false,//initially the game is not started, but when it is started, we will change this to true.
+    turns: [],
 
   },
 
@@ -14,11 +15,17 @@ new Vue({
       this.gameIsRunning = true;
       this.playerHealth = 100;
       this.monsterHealth = 100;
+      this.turns = [];
     },
 
     attack(){
       // player damaging monster
-      this.monsterHealth -= this.calculateDamage(3,10);
+      let damage = this.calculateDamage(3,10);
+      this.monsterHealth -= damage;
+      this.turns.unshift({
+        isPlayer: true,//this will be needed for CSS formatting
+        text: 'Player hits monster with ' + damage,
+      });
       if (this.checkWin()) {//if this returns true
         return;// we have to stop executing this code, because somebody won, but if nobody won, then continue with the script... and to the monster part to
       }
@@ -27,7 +34,12 @@ new Vue({
     },
 
     specialAttack(){
-      this.monsterHealth -= this.calculateDamage(10,20);
+      damage = this.calculateDamage(10,20);
+      this.monsterHealth -= damage;
+      this.turns.unshift({
+        isPlayer: true,//this will be needed for CSS formatting
+        text: 'Player hits monster with special attack ' + damage,
+      });
       if (this.checkWin()) {
         return;
       }
@@ -35,16 +47,29 @@ new Vue({
     },
 
     heal(){
-
+      this.playerHealth += 10;
+      if (this.playerHealth >= 100) {
+        this.playerHealth = 100;
+      }
+      this.turns.unshift({
+        isPlayer: true,
+        text: 'Player heals 10.',
+      });
+      this.monsterAttacks();
     },
 
     giveUp(){
-
+      this.gameIsRunning = false;
     },
 
     monsterAttacks(){
-      this.playerHealth -= this.calculateDamage(5,12);
+      let damage = this.calculateDamage(5,12);
+      this.playerHealth -= damage;
       this.checkWin();//here we don't have a return after the checkwind(), because here we end this function, no need for quitting with return
+      this.turns.unshift({
+        isPlayer: false,
+        text: 'Monster hits player with ' + damage,
+      });
     },
 
     calculateDamage(min, max){
